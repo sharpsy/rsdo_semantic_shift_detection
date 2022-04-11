@@ -27,11 +27,11 @@ between which semantic shift will be calculated <br/>
 
 
 **Outputs:**<br/>
-**preprocessed tsv corpus** saved to the folder containing input data <br/>
-**vocab.pickle** A pickled vocab class used as input for script get_embeddings_scalable.py <br/> 
-**train_lm.txt** An input train corpus for language model fine-tuning <br/>
-**test_lm.txt** An input test corpus for language model fine-tuning <br/>
-**vocab_list_of_words.csv** All words in the corpus vocab for which semantic shift will be calculated <br/>
+1.) **preprocessed tsv corpus** saved to the folder containing input data <br/>
+2.) **vocab.pickle** A pickled vocab class used as input for script get_embeddings_scalable.py <br/> 
+3.) **train_lm.txt** An input train corpus for language model fine-tuning <br/>
+4.) **test_lm.txt** An input test corpus for language model fine-tuning <br/>
+5.) **vocab_list_of_words.csv** All words in the corpus vocab for which semantic shift will be calculated <br/>
 
 
 ### Fine-tune RoBERTa language model:<br/>
@@ -53,7 +53,7 @@ between which semantic shift will be calculated) <br/>
 
 
 **Outputs:**<br/>
-Returns a **fine-tuned RoBERTa model** that can be used for embedding generation in script get_embeddings_scalable.py 
+1.) A **fine-tuned RoBERTa model** that can be used for embedding generation in script get_embeddings_scalable.py 
 
 ### Extract embeddings:<br/>
 
@@ -70,7 +70,7 @@ python get_embeddings_scalable.py --vocab_path output/vocab.pickle --embeddings_
 **--path_to_fine_tuned_model** Path to fine-tuned model. If empty, pretrained model is used <br/>
 
 **Outputs:**<br/>
-**output pickle file containing embeddings**
+**1.) output pickle file containing embeddings**
 
 
 ### Conduct clustering and measure semantic shift:<br/>
@@ -87,11 +87,11 @@ python measure_semantic_shift.py --output_dir output --embeddings_path embedding
 **--metric** Which metric to use for measuring semantic shift, should be JSD or WD <br/>
 
 **Outputs:**<br/>
-**word_list_results.csv** a list of all words in the vocab with their semantic change scores :<br/>
-**corpus_slices.pkl** pickled list of corpus slices used as input for script 'interpretation.py' :<br/>
-**id2sents.pkl** pickled sentence dictionary used as input for script 'interpretation.py' :<br/>
-**kmeans_5_labels.pkl** pickled dictionary of kmeans cluster labels for each word usage used as input for script 'interpretation.py' :<br/>
-**sents.pkl** pickled list of all sentences  used as input for script 'interpretation.py' :<br/>
+1.) **word_list_results.csv** a list of all words in the vocab with their semantic change scores <br/>
+2.) **corpus_slices.pkl** pickled list of corpus slices used as input for script 'interpretation.py' <br/>
+3.) **id2sents.pkl** pickled sentence dictionary used as input for script 'interpretation.py' <br/>
+4.) **kmeans_5_labels.pkl** pickled dictionary of kmeans cluster labels for each word usage used as input for script 'interpretation.py' <br/>
+5.) **sents.pkl** pickled list of all sentences  used as input for script 'interpretation.py' <br/>
 
 
 ### Extract keywords for each cluster and plot clusters distributions for interpretation:<br/>
@@ -111,8 +111,8 @@ python interpretation.py  --target_words "valovanje,letnik" --lang slo --input_d
 
 
 **Outputs:**<br/>
-**An image showing a distribution of word usages for each target word** <br/>
-**A tsv document per each target word containing information about sentences in which it appeared and into which cluster was each usage clustered** <br/>
+**1.) An image showing a distribution of word usages for each target word** <br/>
+**2.) A tsv document per each target word containing information about sentences in which it appeared and into which cluster was each usage clustered** <br/>
 
 
 
