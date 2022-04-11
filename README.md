@@ -97,7 +97,7 @@ python measure_semantic_shift.py --output_dir output --embeddings_path embedding
 ### Extract keywords for each cluster and plot clusters distributions for interpretation:<br/>
 
 ```
-python interpretation.py  --target_words "valovanje,letnik" --lang slo --input_dir output --results_dir results --cluster_size_threshold 10 --max_df 0.8 --num_keywords 10
+python interpretation.py  --target_words "diplomat,objava" --lang slo --input_dir output --results_dir results --cluster_size_threshold 10 --max_df 0.8 --num_keywords 10
 ```
 
 **Arguments:**<br/>
