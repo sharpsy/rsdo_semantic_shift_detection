@@ -76,7 +76,7 @@ python get_embeddings_scalable.py --vocab_path output/vocab.pickle --embeddings_
 ### Conduct clustering and measure semantic shift:<br/>
 
 ```
-python measure_semantic_shift.py --output_dir output --embeddings_path embeddings/embeddings.pickle -random_state 123 --cluster_size_threshold 10 -metric JSD
+python measure_semantic_shift.py --output_dir output --embeddings_path embeddings/embeddings.pickle --random_state 123 --cluster_size_threshold 10 --metric JSD
 ```
 
 **Arguments:**<br/>
