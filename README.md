@@ -8,7 +8,7 @@ Instructions for installation assume the usage of PyPI package manager.<br/>
 Install dependencies if needed: pip install -r requirements.txt <br/>
 You also need to download 'tokenizers/punkt/english.pickle' using nltk library.
 
-#### Prepare the data :<br/> 
+### Prepare the data :<br/> 
 
 The script preprocess.py accepts corpus in the tsv format as an input (see 'data/example_data.csv' for example). To run 
 the script on the example data, run:<br/>
@@ -19,11 +19,11 @@ python preprocess.py  --data_path data/example_data.tsv --chunks_column date --t
 **Arguments:**<br/>
 **--data_path** Path to the tsv file containing the data <br/>
 **--chunks_column** Name of the column in the data tsv file that should be used for splitting the corpus into chunk, 
-between which semantic shift will be calculated) <br/>
-**--text_column** Name of the column in the data tsv file containing text) <br/>
-**--lang Language** of the corpus, currently only Slovenian ('slo') and English ('en') are supported) <br/>
-**--output_dir** Path to the folder that will contain generated output vocab and language_model training files) <br/>
-**--min_freq** Minimum frequency of the word in a specific chunk to be included in the vocabulary) <br/>
+between which semantic shift will be calculated <br/>
+**--text_column** Name of the column in the data tsv file containing text <br/>
+**--lang Language** of the corpus, currently only Slovenian ('slo') and English ('en') are supported <br/>
+**--output_dir** Path to the folder that will contain generated output vocab and language_model training files <br/>
+**--min_freq** Minimum frequency of the word in a specific chunk to be included in the vocabulary <br/>
 
 
 **Outputs:**<br/>
@@ -34,7 +34,7 @@ between which semantic shift will be calculated) <br/>
 **vocab_list_of_words.csv** All words in the corpus vocab for which semantic shift will be calculated <br/>
 
 
-#### Fine-tune RoBERTa language model:<br/>
+### Fine-tune RoBERTa language model:<br/>
 
 Fine-tune RoBERTa language model:<br/>
 
@@ -55,7 +55,7 @@ between which semantic shift will be calculated) <br/>
 **Outputs:**<br/>
 Returns a **fine-tuned RoBERTa model** that can be used for embedding generation in script get_embeddings_scalable.py 
 
-#### Extract embeddings:<br/>
+### Extract embeddings:<br/>
 
 Generate corpus chunk specific embeddings:<br/>
 
@@ -73,7 +73,7 @@ python get_embeddings_scalable.py --vocab_path output/vocab.pickle --embeddings_
 **output pickle file containing embeddings**
 
 
-#### Get results:<br/>
+### Get results:<br/>
 
 Conduct clustering and measure semantic shift:<br/>
 
