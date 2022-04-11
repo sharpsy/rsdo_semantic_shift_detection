@@ -73,9 +73,7 @@ python get_embeddings_scalable.py --vocab_path output/vocab.pickle --embeddings_
 **output pickle file containing embeddings**
 
 
-### Get results:<br/>
-
-Conduct clustering and measure semantic shift:<br/>
+### Conduct clustering and measure semantic shift:<br/>
 
 ```
 python measure_semantic_shift.py --output_dir output --embeddings_path embeddings/embeddings.pickle -random_state 123 --cluster_size_threshold 10 -metric JSD
@@ -96,7 +94,7 @@ python measure_semantic_shift.py --output_dir output --embeddings_path embedding
 **sents.pkl** pickled list of all sentences  used as input for script 'interpretation.py' :<br/>
 
 
-Extract keywords for each cluster and plot clusters distributions for interpretation:<br/>
+### Extract keywords for each cluster and plot clusters distributions for interpretation:<br/>
 
 ```
 python interpretation.py  --target_words "valovanje,letnik" --lang slo --input_dir output --results_dir results --cluster_size_threshold 10 --max_df 0.8 --num_keywords 10
