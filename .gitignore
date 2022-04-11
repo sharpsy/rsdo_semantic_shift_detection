@@ -1,0 +1,9 @@
+*.npy
+*.pyc
+.idea
+runs
+embeddings/embeddings.pickle
+results*
+models*
+data/example_data_preprocessed.tsv
+output*

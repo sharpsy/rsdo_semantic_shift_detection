@@ -1,0 +1,14 @@
+numpy
+pandas
+scipy
+scikit-learn
+torch
+tqdm
+transformers
+tokenizers
+datasets
+tensorboardX
+ot
+nltk
+dill
+plotly
