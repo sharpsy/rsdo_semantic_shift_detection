@@ -333,6 +333,22 @@ def label_multiword_expressions(df, lang):
     return df
 
 
+def _prepare_si_pipeline():
+    import classla
+
+    classla.download("sl")
+    nlp = classla.Pipeline(lang="sl", processors="tokenize,ner,pos,lemma")
+    return nlp
+
+
+def _prepare_en_pipeline():
+    import stanza
+
+    stanza.download("en")
+    nlp = stanza.Pipeline(lang="en", processors="tokenize,ner,pos,lemma")
+    return nlp
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -374,18 +390,12 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    assert args.lang in ["en", "slo"]
+    assert args.lang in ("en", "slo")
     if args.lang == "slo":
-        import classla
-
-        classla.download("sl")
-        nlp = classla.Pipeline(lang="sl", processors="tokenize,ner,pos,lemma")
+        nlp = _prepare_si_pipeline()
         w_tokenizer = AutoTokenizer.from_pretrained("EMBEDDIA/sloberta", use_fast=False)
-    elif args.lang == "en":
-        import stanza
-
-        stanza.download("en")
-        nlp_en = stanza.Pipeline(lang="en", processors="tokenize,ner,pos,lemma")
+    else:
+        nlp = _prepare_en_pipeline()
         w_tokenizer = AutoTokenizer.from_pretrained("roberta-base")
 
     df_data = preprocess(
