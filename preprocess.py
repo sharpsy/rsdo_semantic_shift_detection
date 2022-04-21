@@ -5,7 +5,8 @@ from collections import defaultdict
 
 import dill
 import nltk
-import pandas as pd  # download standard models for Slovenian, use hr for Croatian, sr for Serbian, bg for Bulgarian, mk for Macedonian
+import pandas as pd
+
 from nltk import sent_tokenize
 from nltk.collocations import *
 from nltk.corpus import stopwords
