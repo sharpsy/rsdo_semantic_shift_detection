@@ -87,12 +87,9 @@ def remove_url(text, replace_token):
 
 
 def get_stopwords(lang):
-    sw = []
     if lang == "slo":
         with open("resources/stopwords.txt", "r", encoding="utf8") as f:
-            for line in f:
-                sw.append(line.strip())
-        return set(sw)
+            return set(line.strip() for line in f)
     elif lang == "en":
         return stopwords.words("english")
 
