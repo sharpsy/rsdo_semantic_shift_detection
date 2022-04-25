@@ -86,7 +86,7 @@ class Vocab:
 
 def get_stopwords(lang):
     if lang == "slo":
-        with open("resources/stopwords.txt", "r", encoding="utf8") as f:
+        with open("/app/resources/stopwords.txt", "r", encoding="utf8") as f:
             return set(line.strip() for line in f)
     elif lang == "en":
         return stopwords.words("english")
@@ -234,7 +234,7 @@ def filter_artefacts(df):
 
 def get_predefined_collocations():
     all_collocations = []
-    with open("resources/all_collocations.txt", "r", encoding="utf8") as f:
+    with open("/app/resources/all_collocations.txt", "r", encoding="utf8") as f:
         for line in f:
             all_collocations.append(tuple(line.strip().split()))
     return list(set(all_collocations))
@@ -347,7 +347,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--data_path",
-        default="data/example_data.tsv",
+        default="/data/example_data.tsv",
         type=str,
         help="Path to the tsv file containing the data",
     )
