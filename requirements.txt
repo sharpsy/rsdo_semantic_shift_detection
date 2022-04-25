@@ -4,9 +4,9 @@ dill
 kaleido
 nltk
 numpy
-ot
 pandas
 plotly
+pot
 scikit_learn
 scipy
 sentencepiece
