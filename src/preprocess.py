@@ -12,6 +12,11 @@ from nltk.corpus import stopwords
 from transformers import AutoTokenizer
 
 
+URL_RE = (
+    "http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+"
+)
+
+
 class Vocab:
     def __init__(self, w_tokenizer, time_tokens):
         self.docs = defaultdict(list)
@@ -79,13 +84,6 @@ class Vocab:
                 self.freqs.append((w, freq))
 
 
-def remove_url(text, replace_token):
-    regex = (
-        "http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+"
-    )
-    return re.sub(regex, replace_token, text)
-
-
 def get_stopwords(lang):
     if lang == "slo":
         with open("resources/stopwords.txt", "r", encoding="utf8") as f:
@@ -116,7 +114,7 @@ def preprocess_doc(text, nlp):
         .replace("—", " ")
         .replace("–", " ")
     )
-    text = remove_url(text, "")
+    text = re.sub(URL_RE, "", text)
     text = re.sub("[\(\[].*?[\)\]]", "", text)
     sents = sent_tokenize(text)
     text_filtered = []
