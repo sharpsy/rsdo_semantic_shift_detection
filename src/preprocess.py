@@ -384,6 +384,8 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    nltk.download("punkt")
+
     assert args.lang in ("en", "slo")
     if args.lang == "slo":
         nlp = _prepare_si_pipeline()
