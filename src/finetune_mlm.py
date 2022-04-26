@@ -661,10 +661,5 @@ def main():
         trainer.push_to_hub(**kwargs)
 
 
-def _mp_fn(index):
-    # For xla_spawn (TPUs)
-    main()
-
-
 if __name__ == "__main__":
     main()
