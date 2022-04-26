@@ -5,9 +5,9 @@ from collections import defaultdict
 
 import dill
 import nltk
+import nltk.corpus
 import pandas as pd
 from nltk import sent_tokenize
-from nltk.corpus import stopwords
 from nltk.collocations import BigramCollocationFinder, TrigramCollocationFinder
 from pandarallel import pandarallel
 from transformers import AutoTokenizer
@@ -26,7 +26,7 @@ def get_stopwords(lang):
         with open("/app/resources/stopwords.txt", "r", encoding="utf8") as f:
             return set(line.strip() for line in f)
     elif lang == "en":
-        return stopwords.words("english")
+        return nltk.corpus.stopwords.words("english")
 
 
 def _preprocess_cleanup(text):
