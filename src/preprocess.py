@@ -15,7 +15,7 @@ from vocab import Vocab
 
 
 URL_RE = (
-    "http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+"
+    r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+"
 )
 
 
@@ -50,7 +50,7 @@ def preprocess_doc(text, nlp):
         .replace("–", " ")
     )
     text = re.sub(URL_RE, "", text)
-    text = re.sub("[\(\[].*?[\)\]]", "", text)
+    text = re.sub(r"[\(\[].*?[\)\]]", "", text)
     sents = sent_tokenize(text)
     text_filtered = []
     for sent in sents:
