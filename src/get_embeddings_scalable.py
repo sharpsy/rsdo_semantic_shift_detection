@@ -426,9 +426,6 @@ def get_slice_embeddings(
 
     print("Length of vocab after training: ", len(vocab_vectors.items()))
 
-    if not os.path.exists(embeddings_path.split("/")[0]):
-        os.makedirs(embeddings_path.split("/")[0])
-
     with open(embeddings_path.split(".")[0] + ".pickle", "wb") as handle:
         dill.dump([vocab_vectors, count2sents], handle)
 
