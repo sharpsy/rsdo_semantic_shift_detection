@@ -1,13 +1,13 @@
 import argparse
 import gc
-import os
+import pickle
 
-import dill
 import numpy as np
 import pandas as pd
 import torch
 from sklearn.metrics.pairwise import cosine_similarity
 from transformers import AutoModelForMaskedLM, AutoTokenizer
+
 
 BOS_TOKEN = "<s>"
 EOS_TOKEN = "</s>"
@@ -426,8 +426,8 @@ def get_slice_embeddings(
 
     print("Length of vocab after training: ", len(vocab_vectors.items()))
 
-    with open(embeddings_path.split(".")[0] + ".pickle", "wb") as handle:
-        dill.dump([vocab_vectors, count2sents], handle)
+    with open(embeddings_path, "wb") as outfile:
+        pickle.dump([vocab_vectors, count2sents], outfile)
 
     gc.collect()
 
@@ -468,7 +468,7 @@ if __name__ == "__main__":
     device = torch.device(args.device if torch.cuda.is_available() else "cpu")
 
     with open(args.vocab_path, "rb") as handle:
-        vocab = dill.load(handle)
+        vocab = pickle.load(handle)
 
     if args.path_to_fine_tuned_model:
         model = AutoModelForMaskedLM.from_pretrained(
