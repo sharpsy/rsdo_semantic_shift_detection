@@ -334,9 +334,9 @@ if __name__ == "__main__":
         args.lang,
     )
     # df_data = pd.read_csv("data/example_data_preprocessed.tsv", sep='\t', encoding='utf8')
-    time_tokens = list(set(df_data[args.chunks_column].tolist()))
-    time_tokens = ["<" + str(chunk) + ">" for chunk in time_tokens]
-    w_tokenizer.add_tokens(time_tokens)
+    time_tokens = df_data[args.chunks_column].drop_duplicates()
+    time_tokens = "<" + time_tokens + ">"
+    w_tokenizer.add_tokens(time_tokens.tolist())
 
     vocab_path = os.path.join(args.output_dir, "vocab_list_of_words.csv")
     lm_train_path = os.path.join(args.output_dir, "train_lm.txt")
