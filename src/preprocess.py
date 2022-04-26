@@ -1,9 +1,9 @@
 import argparse
 import os
+import pickle
 import re
 from collections import defaultdict
 
-import dill
 import nltk
 import nltk.corpus
 import pandas as pd
@@ -406,7 +406,7 @@ if __name__ == "__main__":
 
     stopwords = get_stopwords(args.lang)
     vocab.make_vocab(vocab_path, args.lang, args.min_freq, stopwords)
-    with open(os.path.join(args.output_dir, "vocab.pickle"), "wb") as handle:
-        dill.dump(vocab, handle)
+    with open(os.path.join(args.output_dir, "vocab.pickle"), "wb") as vocab_file:
+        pickle.dump(vocab, vocab_file)
 
     print("Done building vocab.")
