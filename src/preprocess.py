@@ -329,7 +329,7 @@ if __name__ == "__main__":
 
     df_data = preprocess(
         args.data_path,
-        args.data_path.split(".")[0] + "_preprocessed.tsv",
+        os.path.join(args.output_dir, "preprocessed.tsv"),
         args.text_column,
         args.lang,
     )
