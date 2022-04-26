@@ -27,7 +27,6 @@ import sys
 from dataclasses import dataclass, field
 from typing import Optional
 
-import datasets
 import pandas as pd
 import transformers
 from datasets import load_dataset
@@ -133,16 +132,6 @@ class DataTrainingArguments:
     Arguments pertaining to what data we are going to input our model for training and eval.
     """
 
-    dataset_name: Optional[str] = field(
-        default=None,
-        metadata={"help": "The name of the dataset to use (via the datasets library)."},
-    )
-    dataset_config_name: Optional[str] = field(
-        default=None,
-        metadata={
-            "help": "The configuration name of the dataset to use (via the datasets library)."
-        },
-    )
     train_file: Optional[str] = field(
         default=None, metadata={"help": "The input training data file (a text file)."}
     )
@@ -216,14 +205,8 @@ class DataTrainingArguments:
     )
 
     def __post_init__(self):
-        if (
-            self.dataset_name is None
-            and self.train_file is None
-            and self.validation_file is None
-        ):
-            raise ValueError(
-                "Need either a dataset name or a training/validation file."
-            )
+        if self.train_file is None and self.validation_file is None:
+            raise ValueError("Need a training/validation file.")
         else:
             if self.train_file is not None:
                 extension = self.train_file.split(".")[-1]
@@ -265,7 +248,6 @@ def main():
 
     log_level = training_args.get_process_log_level()
     logger.setLevel(log_level)
-    datasets.utils.logging.set_verbosity(log_level)
     transformers.utils.logging.set_verbosity(log_level)
     transformers.utils.logging.enable_default_handler()
     transformers.utils.logging.enable_explicit_format()
@@ -302,71 +284,47 @@ def main():
     # Set seed before initializing model.
     set_seed(training_args.seed)
 
-    # Get the datasets: you can either provide your own CSV/JSON/TXT training and evaluation files (see below)
-    # or just provide the name of one of the public datasets available on the hub at https://huggingface.co/datasets/
-    # (the dataset will be downloaded automatically from the datasets Hub
-    #
+    # Get the datasets: you can provide your own CSV/JSON/TXT training and evaluation files (see below)
     # For CSV/JSON files, this script will use the column called 'text' or the first column. You can easily tweak this
     # behavior (see below)
     #
     # In distributed training, the load_dataset function guarantee that only one local process can concurrently
     # download the dataset.
-    if data_args.dataset_name is not None:
-        # Downloading and loading a dataset from the hub.
-        raw_datasets = load_dataset(
-            data_args.dataset_name,
-            data_args.dataset_config_name,
+    data_files = {}
+    if data_args.train_file is not None:
+        if data_args.train_file[-1] == "/":
+            data_files["train"] = [
+                os.path.join(data_args.train_file, f)
+                for f in os.listdir(data_args.train_file)
+            ]
+            print("Files: ", data_files["train"])
+        else:
+            data_files["train"] = data_args.train_file
+            extension = data_args.train_file.split(".")[-1]
+    if data_args.validation_file is not None:
+        data_files["validation"] = data_args.validation_file
+        extension = data_args.validation_file.split(".")[-1]
+    if extension == "txt":
+        extension = "text"
+    raw_datasets = load_dataset(
+        extension, data_files=data_files, cache_dir=model_args.cache_dir
+    )
+
+    # If no validation data is there, validation_split_percentage will be used to divide the dataset.
+    if "validation" not in raw_datasets.keys():
+        print("Splitting dataset to train and validation...")
+        raw_datasets["validation"] = load_dataset(
+            extension,
+            data_files=data_files,
+            split=f"train[:{data_args.validation_split_percentage}%]",
             cache_dir=model_args.cache_dir,
         )
-        if "validation" not in raw_datasets.keys():
-            raw_datasets["validation"] = load_dataset(
-                data_args.dataset_name,
-                data_args.dataset_config_name,
-                split=f"train[:{data_args.validation_split_percentage}%]",
-                cache_dir=model_args.cache_dir,
-            )
-            raw_datasets["train"] = load_dataset(
-                data_args.dataset_name,
-                data_args.dataset_config_name,
-                split=f"train[{data_args.validation_split_percentage}%:]",
-                cache_dir=model_args.cache_dir,
-            )
-    else:
-        data_files = {}
-        if data_args.train_file is not None:
-            if data_args.train_file[-1] == "/":
-                data_files["train"] = [
-                    os.path.join(data_args.train_file, f)
-                    for f in os.listdir(data_args.train_file)
-                ]
-                print("Files: ", data_files["train"])
-            else:
-                data_files["train"] = data_args.train_file
-                extension = data_args.train_file.split(".")[-1]
-        if data_args.validation_file is not None:
-            data_files["validation"] = data_args.validation_file
-            extension = data_args.validation_file.split(".")[-1]
-        if extension == "txt":
-            extension = "text"
-        raw_datasets = load_dataset(
-            extension, data_files=data_files, cache_dir=model_args.cache_dir
+        raw_datasets["train"] = load_dataset(
+            extension,
+            data_files=data_files,
+            split=f"train[{data_args.validation_split_percentage}%:]",
+            cache_dir=model_args.cache_dir,
         )
-
-        # If no validation data is there, validation_split_percentage will be used to divide the dataset.
-        if "validation" not in raw_datasets.keys():
-            print("Splitting dataset to train and validation...")
-            raw_datasets["validation"] = load_dataset(
-                extension,
-                data_files=data_files,
-                split=f"train[:{data_args.validation_split_percentage}%]",
-                cache_dir=model_args.cache_dir,
-            )
-            raw_datasets["train"] = load_dataset(
-                extension,
-                data_files=data_files,
-                split=f"train[{data_args.validation_split_percentage}%:]",
-                cache_dir=model_args.cache_dir,
-            )
 
     # See more about loading any type of standard or custom dataset (from files, python dict, pandas DataFrame, etc) at
     # https://huggingface.co/docs/datasets/loading_datasets.html.
