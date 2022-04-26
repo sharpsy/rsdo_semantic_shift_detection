@@ -54,20 +54,18 @@ def preprocess_doc(text, nlp):
     sents = sent_tokenize(text)
     text_filtered = []
     for sent in sents:
-        corrupted = False
-        if not sent.isupper():
-            sent = sent.split()
-            sent = " ".join(sent)
-            if len(sent) <= 3:
-                corrupted = True
-            words = sent.split()
-            for w in words:
-                if w.isupper() and len(w) > 1:
-                    corrupted = True
-                    break
-            if not corrupted:
-                text_filtered.append(sent)
-
+        if sent.isupper():
+            continue
+        words = sent.split()
+        sent = " ".join(words)
+        if len(sent) <= 3:
+            # sentence too small
+            continue
+        # check uppercased word
+        sent_corrupted = any((w.isupper() and len(w) > 1) for w in words)
+        if sent_corrupted:
+            continue
+        text_filtered.append(sent)
     text_filtered = " ".join(text_filtered)
     if len(text_filtered.split()) > 3:
         doc = nlp(text_filtered)
