@@ -5,6 +5,7 @@ kaleido
 nltk
 numpy
 pandas
+pandarallel
 plotly
 pot
 scikit_learn

@@ -9,6 +9,7 @@ import pandas as pd
 from nltk import sent_tokenize
 from nltk.collocations import *
 from nltk.corpus import stopwords
+from pandarallel import pandarallel
 from transformers import AutoTokenizer
 
 from vocab import Vocab
@@ -17,6 +18,7 @@ from vocab import Vocab
 URL_RE = (
     r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+"
 )
+pandarallel.initialize(progress_bar=True)
 
 
 def get_stopwords(lang):
@@ -115,12 +117,12 @@ def preprocess(input_path, output_path, text_column, lang):
     text = df_data[text_column]
     df_data = df_data.drop(columns=[text_column])
 
-    text = text.apply(_preprocess_cleanup)
-    docs_sents = text.apply(sent_tokenize)
-    docs_sents = docs_sents.apply(_filter_noise_sentences)
+    text = text.parallel_apply(_preprocess_cleanup)
+    docs_sents = text.parallel_apply(sent_tokenize)
+    docs_sents = docs_sents.parallel_apply(_filter_noise_sentences)
     docs_sents = docs_sents[docs_sents.apply(lambda t: len(t.split())) > 3]
 
-    processed_docs = docs_sents.apply(_process_doc, lang=lang)
+    processed_docs = docs_sents.parallel_apply(_process_doc, lang=lang)
     print(processed_docs.to_string(max_colwidth=100))
 
     df_processed = pd.concat([df_data, processed_docs], axis=1, join="inner")
