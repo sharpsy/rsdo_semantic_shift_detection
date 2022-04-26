@@ -168,11 +168,12 @@ def filter_artefacts(df):
 
 
 def get_predefined_collocations():
-    all_collocations = []
+    all_collocations = set()
     with open("/app/resources/all_collocations.txt", "r", encoding="utf8") as f:
         for line in f:
-            all_collocations.append(tuple(line.strip().split()))
-    return list(set(all_collocations))
+            collocation = tuple(line.strip().split())
+            all_collocations.add(collocation)
+    return list(all_collocations)
 
 
 def label_multiword_expressions(df, lang):
