@@ -7,8 +7,8 @@ import dill
 import nltk
 import pandas as pd
 from nltk import sent_tokenize
-from nltk.collocations import *
 from nltk.corpus import stopwords
+from nltk.collocations import BigramCollocationFinder, TrigramCollocationFinder
 from pandarallel import pandarallel
 from transformers import AutoTokenizer
 
