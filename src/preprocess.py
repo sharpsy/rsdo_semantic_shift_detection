@@ -27,7 +27,7 @@ def get_stopwords(lang):
         return stopwords.words("english")
 
 
-def preprocess_doc(text, nlp):
+def _preprocess_cleanup(text):
     text = (
         text.replace("~", "")
         .replace("­", "")
@@ -51,7 +51,10 @@ def preprocess_doc(text, nlp):
     )
     text = re.sub(URL_RE, "", text)
     text = re.sub(r"[\(\[].*?[\)\]]", "", text)
-    sents = sent_tokenize(text)
+    return text
+
+
+def _filter_noise_sentences(sents):
     text_filtered = []
     for sent in sents:
         if sent.isupper():
@@ -67,68 +70,64 @@ def preprocess_doc(text, nlp):
             continue
         text_filtered.append(sent)
     text_filtered = " ".join(text_filtered)
-    if len(text_filtered.split()) > 3:
-        doc = nlp(text_filtered)
-
-        clean_doc = []
-        lemmatized_doc = []
-        for sent in doc.sentences:
-            original_sent = []
-            lemmatized_sent = []
-            for token, word in zip(sent.tokens, sent.words):
-                lemma = word.lemma.lower()
-                if "’" in token.text:
-                    lemma = token.text
-                if token.ner != "O":
-                    lemmatized_sent.append(lemma + "_<ner>")
-                else:
-                    lemmatized_sent.append(lemma)
-                original_sent.append(token.text)
-
-            original_sent = " ".join(original_sent)
-            lemmatized_sent = " ".join(lemmatized_sent)
-            # print(original_sent)
-            # print(lemmatized_sent)
-            # print('---------------------------------------------------')
-            clean_doc.append(original_sent)
-            lemmatized_doc.append(lemmatized_sent)
-        return clean_doc, lemmatized_doc
-    return None
+    return text_filtered
 
 
-def preprocess(input_path, output_path, text_column, nlp):
-    df_data = pd.read_csv(input_path, sep="\t", encoding="utf8")
-    all_data = []
-    print("Num docs in the corpus: ", len(df_data))
-    counter = 0
-    for idx, row in df_data.iterrows():
-
-        counter += 1
-        text = row[text_column]
-        output = preprocess_doc(text, nlp)
-        if output is not None:
-            text, lemmatized_text = output
-            meta = tuple(row[x] for x in df_data.columns if x != text_column)
-            row_data = meta + (" <eos> ".join(text), " <eos> ".join(lemmatized_text))
-            all_data.append(row_data)
-            print(
-                "Processing text: ",
-                counter,
-                "Tokenized:",
-                " <eos> ".join(text)[:100],
-                "Lemmatized:",
-                " <eos> ".join(lemmatized_text)[:100],
-            )
+def _process_doc(text_filtered, lang, _nlp=[None]):
+    if _nlp[0] is None:
+        if lang == "slo":
+            _nlp[0] = _prepare_si_pipeline()
         else:
-            print("Discarded row", counter)
-    columns = [x for x in df_data.columns if x != text_column] + [
-        "preprocessed_text",
-        "lemmatized_text",
-    ]
-    df = pd.DataFrame(all_data, columns=columns)
-    df.to_csv(output_path, sep="\t", encoding="utf8", index=False)
+            _nlp[0] = _prepare_en_pipeline()
+    nlp = _nlp[0]
+    clean_doc = []
+    lemmatized_doc = []
+    doc = nlp(text_filtered)
+    for sent in doc.sentences:
+        original_sent = [tok.text for tok in sent.tokens]
+        lemmatized_sent = []
+        for token, word in zip(sent.tokens, sent.words):
+            if "’" in token.text:
+                lemma = token.text
+            else:
+                lemma = word.lemma.lower()
+            if token.ner != "O":
+                lemma += "_<ner>"
+            lemmatized_sent.append(lemma)
+
+        original_sent = " ".join(original_sent)
+        lemmatized_sent = " ".join(lemmatized_sent)
+        # print(original_sent)
+        # print(lemmatized_sent)
+        # print('---------------------------------------------------')
+        clean_doc.append(original_sent)
+        lemmatized_doc.append(lemmatized_sent)
+    return pd.Series(
+        [" <eos> ".join(clean_doc), " <eos> ".join(lemmatized_doc)],
+        index=["preprocessed_text", "lemmatized_text"],
+    )
+
+
+def preprocess(input_path, output_path, text_column, lang):
+    df_data = pd.read_csv(input_path, sep="\t", encoding="utf8")
+    print("Num docs in the corpus: ", len(df_data))
+
+    text = df_data[text_column]
+    df_data = df_data.drop(columns=[text_column])
+
+    text = text.apply(_preprocess_cleanup)
+    docs_sents = text.apply(sent_tokenize)
+    docs_sents = docs_sents.apply(_filter_noise_sentences)
+    docs_sents = docs_sents[docs_sents.apply(lambda t: len(t.split())) > 3]
+
+    processed_docs = docs_sents.apply(_process_doc, lang=lang)
+    print(processed_docs.to_string(max_colwidth=100))
+
+    df_processed = pd.concat([df_data, processed_docs], axis=1, join="inner")
+    print(f"Discarded {len(df_data) - len(df_processed)} rows")
+    df_processed.to_csv(output_path, sep="\t", encoding="utf8", index=False)
     print("Data preprocessed, preprocessed data saved to", output_path)
-    return df
+    return df_processed
 
 
 def filter_artefacts(df):
@@ -322,17 +321,15 @@ if __name__ == "__main__":
 
     assert args.lang in ("en", "slo")
     if args.lang == "slo":
-        nlp = _prepare_si_pipeline()
         w_tokenizer = AutoTokenizer.from_pretrained("EMBEDDIA/sloberta", use_fast=False)
     else:
-        nlp = _prepare_en_pipeline()
         w_tokenizer = AutoTokenizer.from_pretrained("roberta-base")
 
     df_data = preprocess(
         args.data_path,
         args.data_path.split(".")[0] + "_preprocessed.tsv",
         args.text_column,
-        nlp,
+        args.lang,
     )
     # df_data = pd.read_csv("data/example_data_preprocessed.tsv", sep='\t', encoding='utf8')
     time_tokens = list(set(df_data[args.chunks_column].tolist()))
