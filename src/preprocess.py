@@ -140,9 +140,7 @@ def filter_artefacts(df):
     sent_freqs.update(joined_sentences)
 
     num_filtered = 0
-    count = 0
     for idx, row in df.iterrows():
-        count += 1
         text = row["preprocessed_text"]
         lemmas = row["lemmatized_text"]
         sents = text.split("<eos>")
