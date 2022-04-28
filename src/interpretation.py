@@ -308,8 +308,6 @@ def full_analysis(
     keyword_clusters = extract_keywords(
         word, clusters_sents_df, topn=topn, max_df=max_df, lang=lang
     )
-    for k in keyword_clusters:
-        keywords = keyword_clusters[k]
     output_distrib(clusters_sents_df, word, keyword_clusters, image_folder)
     return keyword_clusters
 
