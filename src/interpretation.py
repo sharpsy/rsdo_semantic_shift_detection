@@ -170,7 +170,6 @@ def extract_topn_from_vector(feature_names, sorted_items, topn):
     feature_vals = []
 
     for idx, score in sorted_items:
-        fname = feature_names[idx]
         # keep track of feature name and its corresponding score
         score_vals.append(round(score, 3))
         feature_vals.append(feature_names[idx])
