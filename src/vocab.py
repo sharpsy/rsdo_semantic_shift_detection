@@ -1,4 +1,4 @@
-from collections import defaultdict
+from collections import Counter, defaultdict
 
 
 class Vocab:
@@ -17,49 +17,39 @@ class Vocab:
         self.lemmatized_docs[chunk].append(lemmatized_doc)
         self.meta[chunk].append(source)
 
+    def _iter_words_for_chunk(self, chunk):
+        for doc in self.lemmatized_docs[chunk]:
+            for sent in doc.split(" <eos> "):
+                yield from sent.split()
+
     def make_vocab(self, vocab_path, lang, min_freq, stopwords):
         print("making_vocab")
-        all_freqs = []
-        freqs = defaultdict(int)
-        punctuation = "!#%'()*+,.:;=?@[\]^`{|}~"
+        # words that do not have at least min_freq occurences in *every* split
+        rare_words = set()
+        bag_of_words = Counter()
+        punctuation = frozenset("!#%'()*+,.:;=?@[\]^`{|}~")
         for chunk in self.chunks:
             print("chunk: ", chunk)
-            chunk_freqs = defaultdict(int)
-            count_words = 0
-            for doc in self.lemmatized_docs[chunk]:
-                for sent in doc.split(" <eos> "):
-                    for word in sent.split():
-                        is_punct = False
-                        for p in punctuation:
-                            if p in word:
-                                is_punct = True
-                                break
-                        if not is_punct:
-                            is_digit = word.isdigit()
-                            if not is_digit:
-                                if len(word) > 2 and word.lower() not in stopwords:
-                                    chunk_freqs[word] += 1
-                                    freqs[word] += 1
-                                    count_words += 1
-            all_freqs.append((chunk_freqs, count_words))
-        print("All vocab size: ", len(freqs))
+            chunk_bow = Counter()
+            for word in self._iter_words_for_chunk(chunk):
+                if punctuation.intersection(word) or word.isdigit():
+                    continue
+                if len(word) > 2 or word.lower() in stopwords:
+                    continue
+                chunk_bow[word] += 1
+            rare_words.update(wrd for wrd, cnt in chunk_bow.items() if cnt < min_freq)
+            bag_of_words.update(chunk_bow)
+        print("All vocab size: ", bag_of_words.total())
 
-        filtered_freqs = []
-        for word, freq in freqs.items():
-            allow = True
-            for chunk_freq, _ in all_freqs:
-                if chunk_freq[word] < min_freq:
-                    allow = False
-                    break
-            if allow:
-                filtered_freqs.append((word, freq))
+        # drop rare words
+        for rare_word in rare_words:
+            del bag_of_words[rare_words]
 
-        print("Length of filtered vocabulary: ", len(filtered_freqs))
+        print("Length of filtered vocabulary: ", bag_of_words.total())
         self.freqs = []
-        freqs = sorted(filtered_freqs, key=lambda x: x[1], reverse=True)
         with open(vocab_path, "w", encoding="utf8") as f:
             f.write("word,frequency\n")
-            for w, freq in freqs:
+            for w, freq in bag_of_words.most_common():
                 w = self.w_tokenizer.tokenize(w)
                 # w = "".join(w).replace('##', '')
                 w = "".join(w).replace("▁", " ").strip()
