@@ -366,14 +366,9 @@ if __name__ == "__main__":
     docs_folder = os.path.join(args.results_dir, "docs")
     target_words = args.target_words.split(",")
 
-    if not os.path.exists(args.results_dir):
-        os.makedirs(args.results_dir)
-
-    if not os.path.exists(image_folder):
-        os.makedirs(image_folder)
-
-    if not os.path.exists(docs_folder):
-        os.makedirs(docs_folder)
+    os.makedirs(args.results_dir, exist_ok=True)
+    os.makedirs(image_folder, exist_ok=True)
+    os.makedirs(docs_folder, exist_ok=True)
 
     labels = os.path.join(args.input_dir, "kmeans_5_labels.pkl")
     sentences = os.path.join(args.input_dir, "sents.pkl")
