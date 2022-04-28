@@ -2,7 +2,7 @@ import argparse
 import os
 import pickle
 import re
-from collections import defaultdict
+from collections import Counter, defaultdict
 
 import nltk
 import nltk.corpus
@@ -134,15 +134,13 @@ def preprocess(input_path, output_path, text_column, lang):
 
 def filter_artefacts(df):
     print("Filtering corpus artefacts")
+    sent_freqs = Counter()
+    sentences = df["preprocessed_text"].apply(str.split("<eos>"))
+    joined_sentences = sentences.agg(sum)
+    sent_freqs.update(joined_sentences)
+
     num_filtered = 0
     count = 0
-    sent_freqs = defaultdict(int)
-    for idx, row in df.iterrows():
-        text = row["preprocessed_text"]
-        sents = text.split("<eos>")
-        for sent in sents:
-            sent_freqs[sent] += 1
-
     for idx, row in df.iterrows():
         count += 1
         text = row["preprocessed_text"]
