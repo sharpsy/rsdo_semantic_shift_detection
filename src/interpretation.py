@@ -14,7 +14,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 def get_stopwords(lang):
     if lang == "slo":
         sw = []
-        with open("resources/stopwords.txt", "r", encoding="utf8") as f:
+        with open("/app/resources/stopwords.txt", "r", encoding="utf8") as f:
             for line in f:
                 sw.append(unidecode.unidecode(line.strip()))
         return set(sw)
