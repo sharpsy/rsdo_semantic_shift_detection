@@ -197,13 +197,12 @@ def label_multiword_expressions(df, lang):
     trigrams = list(finder_trigram.nbest(trigram_measures.likelihood_ratio, 200))
     if lang == "slo":
         predefined_mw = get_predefined_collocations()
+        print("Predefined: ", predefined_mw)
         mw_expressions = list(set(bigrams + trigrams + predefined_mw))
     else:
         mw_expressions = list(set(bigrams + trigrams))
     print("Bigrams: ", bigrams)
     print("Trigrams: ", trigrams)
-    if lang == "slo":
-        print("Predefined: ", predefined_mw)
     del all_words
     del bigrams
     del trigrams
