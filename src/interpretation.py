@@ -149,7 +149,7 @@ def output_distrib(data, word, keyword_clusters, image_folder):
         height=800,
         barmode="stack",
         title="",
-        xaxis_title="Slice",
+        xaxis_title=f"{word}",
         yaxis_title="Distribution",
         legend_title="",
         font=dict(size=14, color="Black"),
