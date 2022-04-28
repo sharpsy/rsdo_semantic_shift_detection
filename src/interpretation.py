@@ -362,8 +362,6 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    args = parser.parse_args()
-
     image_folder = os.path.join(args.results_dir, "images")
     docs_folder = os.path.join(args.results_dir, "docs")
     target_words = args.target_words.split(",")
