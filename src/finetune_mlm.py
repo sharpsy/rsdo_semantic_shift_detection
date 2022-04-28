@@ -357,30 +357,27 @@ def main():
         "use_auth_token": True if model_args.use_auth_token else None,
     }
     if model_args.tokenizer_name:
-        df_data = pd.read_csv(data_args.data_path, sep="\t", encoding="utf8")
-        time_tokens = list(set(df_data[data_args.chunks_column].tolist()))
-        time_tokens = ["<" + str(chunk) + ">" for chunk in time_tokens]
         tokenizer = AutoTokenizer.from_pretrained(
             model_args.tokenizer_name, **tokenizer_kwargs
         )
-        tokenizer.add_tokens(time_tokens)
-        print("Adding time tokens to the tokenizer:", time_tokens)
     elif model_args.model_name_or_path:
-        df_data = pd.read_csv(data_args.data_path, sep="\t", encoding="utf8")
-        time_tokens = list(set(df_data[data_args.chunks_column].tolist()))
-        time_tokens = ["<" + str(chunk) + ">" for chunk in time_tokens]
         tokenizer = AutoTokenizer.from_pretrained(
             model_args.model_name_or_path, **tokenizer_kwargs
         )
-        tokenizer.add_tokens(time_tokens)
-        print("Adding time tokens to the tokenizer:", time_tokens)
     else:
         raise ValueError(
             "You are instantiating a new tokenizer from scratch. This is not supported by this script."
             "You can do it from another script, save it, and load it from here, using --tokenizer_name."
         )
 
+    df_data = pd.read_csv(data_args.data_path, sep="\t", encoding="utf8")
+    time_tokens = df_data[data_args.chunks_column].drop_duplicates()
+    time_tokens = "<" + time_tokens + ">"
+    print("Time tokens:\n", time_tokens.to_string(max_colwidth=80))
+    tokenizer.add_tokens(time_tokens.tolist())
+
     if model_args.model_name_or_path:
+        logger.info(f"Training model from checkpoint [{model_args.model_name_or_path}]")
         model = AutoModelForMaskedLM.from_pretrained(
             model_args.model_name_or_path,
             from_tf=bool(".ckpt" in model_args.model_name_or_path),
