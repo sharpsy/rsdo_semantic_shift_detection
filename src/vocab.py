@@ -34,7 +34,7 @@ class Vocab:
             for word in self._iter_words_for_chunk(chunk):
                 if punctuation.intersection(word) or word.isdigit():
                     continue
-                if len(word) > 2 or word.lower() in stopwords:
+                if len(word) <= 2 or word.lower() in stopwords:
                     continue
                 chunk_bow[word] += 1
             rare_words.update(wrd for wrd, cnt in chunk_bow.items() if cnt < min_freq)
