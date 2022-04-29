@@ -17,11 +17,9 @@ EOS_TOKEN = "</s>"
 
 
 def get_shifts(input_path):
-    shifts_dict = {}
     df_shifts = pd.read_csv(input_path, sep=",", encoding="utf8")
-    for idx, row in df_shifts.iterrows():
-        shifts_dict[row["word"]] = row["mean"]
-    return shifts_dict
+    # return mapping <word>:<mean>
+    return df_shifts.set_index("word")["mean"].to_dict()
 
 
 def chunks(lst, n):
