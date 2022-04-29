@@ -339,33 +339,21 @@ if __name__ == "__main__":
     all_sents = []
     all_sources = []
     source_counts = defaultdict(int)
-    print(
-        "Meta information",
-        list(
-            x
-            for x in df_data.columns
-            if x
-            not in [
-                args.text_column,
-                args.chunks_column,
-                "preprocessed_text",
-                "lemmatized_text",
-            ]
-        ),
-    )
+    meta_columns = [
+        col
+        for col in df_data.columns
+        if col
+        not in (
+            args.text_column,
+            args.chunks_column,
+            "preprocessed_text",
+            "lemmatized_text",
+        )
+    ]
+    print("Meta information:", meta_columns)
     for idx, row in df_data.iterrows():
         chunk = str(row[args.chunks_column])
-        meta = {
-            x: row[x]
-            for x in df_data.columns
-            if x
-            not in [
-                args.text_column,
-                args.chunks_column,
-                "preprocessed_text",
-                "lemmatized_text",
-            ]
-        }
+        meta = {x: row[x] for x in meta_columns}
         source_counts[chunk] += 1
         text = row["preprocessed_text"]
         lemmatized_text = row["lemmatized_text"]
