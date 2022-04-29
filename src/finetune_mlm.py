@@ -373,7 +373,7 @@ def main():
     df_data = pd.read_csv(data_args.data_path, sep="\t", encoding="utf8")
     time_tokens = df_data[data_args.chunks_column].drop_duplicates()
     time_tokens = "<" + time_tokens + ">"
-    print("Time tokens:\n", time_tokens.to_string(max_colwidth=80))
+    print(time_tokens.to_frame("Time tokens").to_string(index=False, max_colwidth=80))
     tokenizer.add_tokens(time_tokens.tolist())
 
     if model_args.model_name_or_path:
