@@ -137,7 +137,7 @@ def preprocess(input_path, output_path, text_column, lang):
 def filter_artefacts(df):
     print("Filtering corpus artefacts")
     sent_freqs = Counter()
-    sentences = df["preprocessed_text"].apply(str.split("<eos>"))
+    sentences = df["preprocessed_text"].apply(str.split, sep="<eos>")
     joined_sentences = sentences.agg(sum)
     sent_freqs.update(joined_sentences)
 
