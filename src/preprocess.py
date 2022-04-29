@@ -7,6 +7,7 @@ from collections import Counter, defaultdict
 import nltk
 import nltk.corpus
 import pandas as pd
+import tqdm
 from nltk import sent_tokenize
 from nltk.collocations import BigramCollocationFinder, TrigramCollocationFinder
 from pandarallel import pandarallel
@@ -204,12 +205,8 @@ def label_multiword_expressions(df, lang):
     del trigrams
     del finder_trigram
     del finder_bigram
-    counter = 0
 
-    for idx, row in df.iterrows():
-        counter += 1
-        if counter % 1000 == 0:
-            print("Going through text num. ", counter)
+    for idx, row in tqdm.tqdm(df.iterrows(), total=len(df)):
         lemmatized_text = row["lemmatized_text"]
         text = row["preprocessed_text"]
         for mw in mw_expressions:
