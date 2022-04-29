@@ -305,6 +305,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     nltk.download("punkt")
+    os.makedirs(args.output_dir, exist_ok=True)
 
     assert args.lang in ("en", "slo")
     if args.lang == "slo":
@@ -326,8 +327,6 @@ if __name__ == "__main__":
     vocab_path = os.path.join(args.output_dir, "vocab_list_of_words.csv")
     lm_train_path = os.path.join(args.output_dir, "train_lm.txt")
     lm_test_path = os.path.join(args.output_dir, "test_lm.txt")
-    if not os.path.exists(args.output_dir):
-        os.makedirs(args.output_dir)
 
     df_data = df_data.sample(frac=1, random_state=123)
     df_data = filter_artefacts(df_data)
