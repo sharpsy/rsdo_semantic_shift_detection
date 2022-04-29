@@ -211,44 +211,37 @@ def label_multiword_expressions(df, lang):
         text = row["preprocessed_text"]
         for mw in mw_expressions:
             mw_joined = " ".join(mw)
-            if mw_joined in lemmatized_text:
-                lemmatized_text = lemmatized_text.split()
-                text = text.split()
-                if len(mw) == 2:
-                    num_inserted = 0
-                    indices1 = [i for i, x in enumerate(lemmatized_text) if x == mw[0]]
-                    indices2 = set(
-                        [i for i, x in enumerate(lemmatized_text) if x == mw[1]]
-                    )
-                    for i in indices1:
-                        if i + 1 in indices2:
-                            lemmatized_text.insert(i + 1 + num_inserted, "-")
-                            text.insert(i + 1 + num_inserted, "-")
-                            num_inserted += 1
-                elif len(mw) == 3:
-                    num_inserted = 0
-                    indices1 = [i for i, x in enumerate(lemmatized_text) if x == mw[0]]
-                    indices2 = set(
-                        [i for i, x in enumerate(lemmatized_text) if x == mw[1]]
-                    )
-                    indices3 = set(
-                        [i for i, x in enumerate(lemmatized_text) if x == mw[2]]
-                    )
-                    for i in indices1:
-                        if i + 1 in indices2 and i + 2 in indices3:
-                            lemmatized_text.insert(i + 1 + num_inserted, "-")
-                            text.insert(i + 1 + num_inserted, "-")
-                            lemmatized_text.insert(i + 3 + num_inserted, "-")
-                            text.insert(i + 3 + num_inserted, "-")
-                            num_inserted += 2
-                if len(text) != len(lemmatized_text):
-                    print(
-                        "error, len text != len lemmas: ",
-                        len(text),
-                        len(lemmatized_text),
-                    )
-                text = " ".join(text).strip()
-                lemmatized_text = " ".join(lemmatized_text).strip()
+            if mw_joined not in lemmatized_text:
+                continue
+            lemmatized_text = lemmatized_text.split()
+            text = text.split()
+            assert len(mw) in (2, 3)
+            num_inserted = 0
+            indices1 = [i for i, x in enumerate(lemmatized_text) if x == mw[0]]
+            indices2 = set([i for i, x in enumerate(lemmatized_text) if x == mw[1]])
+            if len(mw) == 2:
+                for i in indices1:
+                    if i + 1 in indices2:
+                        lemmatized_text.insert(i + 1 + num_inserted, "-")
+                        text.insert(i + 1 + num_inserted, "-")
+                        num_inserted += 1
+            elif len(mw) == 3:
+                indices3 = set([i for i, x in enumerate(lemmatized_text) if x == mw[2]])
+                for i in indices1:
+                    if i + 1 in indices2 and i + 2 in indices3:
+                        lemmatized_text.insert(i + 1 + num_inserted, "-")
+                        text.insert(i + 1 + num_inserted, "-")
+                        lemmatized_text.insert(i + 3 + num_inserted, "-")
+                        text.insert(i + 3 + num_inserted, "-")
+                        num_inserted += 2
+            if len(text) != len(lemmatized_text):
+                txt_len, lemm_len = len(text), len(lemmatized_text)
+                print(
+                    "error, length of text and lemmas is not the same "
+                    f"[text:{txt_len}, lemmas:{lemm_len}] "
+                )
+            text = " ".join(text).strip()
+            lemmatized_text = " ".join(lemmatized_text).strip()
         df.loc[idx, "lemmatized_text"] = lemmatized_text.replace(" - ", "-")
         df.loc[idx, "preprocessed_text"] = text.replace(" - ", "-")
     return df
