@@ -1,4 +1,5 @@
 import argparse
+import functools
 import os
 import pickle
 import re
@@ -76,13 +77,10 @@ def _filter_noise_sentences(sents):
     return text_filtered
 
 
-def _process_doc(text_filtered, lang, _nlp=[None]):
-    if _nlp[0] is None:
-        if lang == "slo":
-            _nlp[0] = _prepare_si_pipeline()
-        else:
-            _nlp[0] = _prepare_en_pipeline()
-    nlp = _nlp[0]
+def _process_doc(text_filtered, pipeline_factory, _cache={}):
+    if "pipeline_factory" not in _cache:
+        _cache["pipeline_factory"] = pipeline_factory()
+    nlp = _cache["pipeline_factory"]
     clean_doc = []
     lemmatized_doc = []
     doc = nlp(text_filtered)
@@ -123,7 +121,10 @@ def preprocess(input_path, output_path, text_column, lang):
     docs_sents = docs_sents.parallel_apply(_filter_noise_sentences)
     docs_sents = docs_sents[docs_sents.apply(lambda t: len(t.split())) > 3]
 
-    processed_docs = docs_sents.parallel_apply(_process_doc, lang=lang)
+    pipeline_factory = _ensure_pipeline_resources(lang)
+    processed_docs = docs_sents.parallel_apply(
+        _process_doc, pipeline_factory=pipeline_factory
+    )
     print(processed_docs.to_string(max_colwidth=100))
 
     df_processed = pd.concat([df_data, processed_docs], axis=1, join="inner")
@@ -247,20 +248,26 @@ def label_multiword_expressions(df, lang):
     return df
 
 
-def _prepare_si_pipeline():
-    import classla
+def _ensure_pipeline_resources(lang):
+    if lang == "slo":
+        import classla
 
-    classla.download("sl")
-    nlp = classla.Pipeline(lang="sl", processors="tokenize,ner,pos,lemma")
-    return nlp
+        pipeline_provider = classla
+        lang = "sl"
+    else:
+        assert lang == "en"
+        import stanza
 
+        pipeline_provider = stanza
 
-def _prepare_en_pipeline():
-    import stanza
-
-    stanza.download("en")
-    nlp = stanza.Pipeline(lang="en", processors="tokenize,ner,pos,lemma")
-    return nlp
+    pipeline_provider.download(lang)
+    pipeline_factory = functools.partial(
+        pipeline_provider.Pipeline,
+        lang=lang,
+        processors="tokenize,ner,pos,lemma",
+        download_method=None,
+    )
+    return pipeline_factory
 
 
 if __name__ == "__main__":
