@@ -1,4 +1,4 @@
-FROM python:3.9
+FROM python:3.10
 
 COPY requirements.txt /app/
 RUN pip install --no-cache-dir --disable-pip-version-check -r /app/requirements.txt
