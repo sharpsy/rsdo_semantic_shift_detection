@@ -43,7 +43,7 @@ class Vocab:
 
         # drop rare words
         for rare_word in rare_words:
-            del bag_of_words[rare_words]
+            del bag_of_words[rare_word]
 
         print("Length of filtered vocabulary: ", bag_of_words.total())
         self.freqs = []
