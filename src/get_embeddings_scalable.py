@@ -4,7 +4,6 @@ import pickle
 from collections import defaultdict
 
 import numpy as np
-import pandas as pd
 import torch
 from sklearn.metrics.pairwise import cosine_similarity
 from transformers import AutoModelForMaskedLM, AutoTokenizer
@@ -15,12 +14,6 @@ EOS_TOKEN = "</s>"
 
 # BOS_TOKEN='[CLS]'
 # EOS_TOKEN='[SEP]'
-
-
-def get_shifts(input_path):
-    df_shifts = pd.read_csv(input_path, sep=",", encoding="utf8")
-    # return mapping <word>:<mean>
-    return df_shifts.set_index("word")["mean"].to_dict()
 
 
 def chunks(lst, n):
