@@ -337,7 +337,7 @@ if __name__ == "__main__":
     vocab = Vocab(w_tokenizer, time_tokens)
     all_data = []
     all_sents = []
-    all_sources = []
+    all_sources = set()
     source_counts = defaultdict(int)
     meta_columns = [
         col
@@ -364,8 +364,8 @@ if __name__ == "__main__":
             lemmatized_sent = "<" + chunk + "> " + lemmatized_sent
             vocab.add(sent, lemmatized_sent, chunk, meta)
             all_sents.append(sent)
-        all_sources.append(chunk)
-    print("Sources in vocab: ", list(set(all_sources)))
+        all_sources.add(chunk)
+    print("Sources in vocab: ", list(all_sources))
 
     lm_split = int(len(all_sents) * 0.9)
     train_sents = all_sents[:lm_split]
