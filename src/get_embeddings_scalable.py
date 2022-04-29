@@ -1,6 +1,7 @@
 import argparse
 import gc
 import pickle
+from collections import defaultdict
 
 import numpy as np
 import pandas as pd
@@ -328,7 +329,7 @@ def combine_bpe(idxs, context_embedding, tokens):
 def get_slice_embeddings(
     embeddings_path, vocab, tokenizer, model, batch_size, max_length, device
 ):
-    vocab_vectors = {}
+    vocab_vectors = defaultdict(dict)
     count2sents = {}
     not_in_targets = set()
     print("All vocab chunks: ", vocab.chunks)
@@ -356,54 +357,34 @@ def get_slice_embeddings(
             )
 
             # go through text token by token
-            for emb_idx, context_embedding in enumerate(encoder_token_embeddings):
+            for emb_idx, ctx_embedding in enumerate(encoder_token_embeddings):
                 seq_mappings = mappings[emb_idx]
-                # print('---------------------------------')
-                # print(len(context_embedding))
                 for mapping, sentence, lemma_sent in seq_mappings:
-                    # print(mapping)
                     sent_tokens = []
-                    for token_i, idxs in mapping:
-                        if token_i in targets:
-                            encoder_array = combine_bpe(
-                                idxs, context_embedding, tokens[emb_idx]
-                            )
-
-                            if token_i in vocab_vectors:
-                                if chunk in vocab_vectors[token_i]:
-                                    previous = vocab_vectors[token_i][chunk]
-                                    new, new_idx = add_embedding_to_list(
-                                        previous, encoder_array.squeeze()
-                                    )
-                                    vocab_vectors[token_i][chunk] = new
-                                    sent_tokens.append((token_i, new_idx))
-                                else:
-                                    vocab_vectors[token_i][chunk] = [
-                                        (encoder_array.squeeze(), 1)
-                                    ]
-                                    vocab_vectors[token_i][chunk + "_text"] = {}
-                                    sent_tokens.append((token_i, 0))
-                            else:
-                                # print("Not in vocab yet: ", token_i + '_' + period, list(vocab_vectors.keys()))
-                                vocab_vectors[token_i] = {
-                                    chunk: [(encoder_array.squeeze(), 1)],
-                                    chunk + "_text": {},
-                                }
-                                sent_tokens.append((token_i, 0))
-                        else:
-                            # print(mapping)
+                    for token_i, ixs in mapping:
+                        if token_i not in targets:
                             not_in_targets.add(token_i)
+                            continue
+
+                        encoder_array = combine_bpe(ixs, ctx_embedding, tokens[emb_idx])
+                        encoder_array = encoder_array.squeeze()
+                        token_chunks = vocab_vectors[token_i]
+                        if chunk in token_chunks:
+                            previous = token_chunks[chunk]
+                            new, new_idx = add_embedding_to_list(
+                                previous, encoder_array
+                            )
+                            token_chunks[chunk] = new
+                            sent_tokens.append((token_i, new_idx))
+                        else:
+                            token_chunks[chunk] = [(encoder_array, 1)]
+                            token_chunks[chunk + "_text"] = defaultdict(list)
+                            sent_tokens.append((token_i, 0))
 
                     for sent_token, sent_idx in sent_tokens:
-                        # print(sent_token, count2sent[sentence])
-                        if sent_idx in vocab_vectors[sent_token][chunk + "_text"]:
-                            vocab_vectors[sent_token][chunk + "_text"][sent_idx].append(
-                                sent2count[sentence]
-                            )
-                        else:
-                            vocab_vectors[sent_token][chunk + "_text"][sent_idx] = [
-                                sent2count[sentence]
-                            ]
+                        vocab_vectors[sent_token][chunk + "_text"][sent_idx].append(
+                            sent2count[sentence]
+                        )
 
             del encoder_token_embeddings
             del batches
