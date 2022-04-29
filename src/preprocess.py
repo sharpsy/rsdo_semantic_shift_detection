@@ -324,10 +324,6 @@ if __name__ == "__main__":
     time_tokens = "<" + time_tokens + ">"
     w_tokenizer.add_tokens(time_tokens.tolist())
 
-    vocab_path = os.path.join(args.output_dir, "vocab_list_of_words.csv")
-    lm_train_path = os.path.join(args.output_dir, "train_lm.txt")
-    lm_test_path = os.path.join(args.output_dir, "test_lm.txt")
-
     df_data = df_data.sample(frac=1, random_state=123)
     df_data = filter_artefacts(df_data)
     df_data = label_multiword_expressions(df_data, args.lang)
@@ -366,6 +362,9 @@ if __name__ == "__main__":
         all_sources.add(chunk)
     print("Sources in vocab: ", list(all_sources))
 
+    lm_train_path = os.path.join(args.output_dir, "train_lm.txt")
+    lm_test_path = os.path.join(args.output_dir, "test_lm.txt")
+
     lm_split = int(len(all_sents) * 0.9)
     train_sents = all_sents[:lm_split]
     test_sents = all_sents[lm_split:]
@@ -376,6 +375,7 @@ if __name__ == "__main__":
     with open(lm_test_path, "w", encoding="utf8") as f:
         f.write(test_sents)
 
+    vocab_path = os.path.join(args.output_dir, "vocab_list_of_words.csv")
     stopwords = get_stopwords(args.lang)
     vocab.make_vocab(vocab_path, args.lang, args.min_freq, stopwords)
     with open(os.path.join(args.output_dir, "vocab.pickle"), "wb") as vocab_file:
