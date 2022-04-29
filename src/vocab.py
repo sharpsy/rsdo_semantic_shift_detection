@@ -39,13 +39,13 @@ class Vocab:
                 chunk_bow[word] += 1
             rare_words.update(wrd for wrd, cnt in chunk_bow.items() if cnt < min_freq)
             bag_of_words.update(chunk_bow)
-        print("All vocab size: ", bag_of_words.total())
+        print("All vocab size: ", len(bag_of_words))
 
         # drop rare words
         for rare_word in rare_words:
             del bag_of_words[rare_word]
 
-        print("Length of filtered vocabulary: ", bag_of_words.total())
+        print("Length of filtered vocabulary: ", len(bag_of_words))
         self.freqs = []
         with open(vocab_path, "w", encoding="utf8") as f:
             f.write("word,frequency\n")
