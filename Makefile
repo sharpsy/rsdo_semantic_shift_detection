@@ -6,10 +6,7 @@ MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 .RECIPEPREFIX = >
 
-
-ifneq (,$(wildcard ./.env))
-    include .env
-endif
+include config.mk
 
 DATA ?= data/example_data.tsv
 DATA_GROUP_COLUMN ?= date

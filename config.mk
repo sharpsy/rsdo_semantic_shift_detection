@@ -1,0 +1,8 @@
+DATA = data/all_data.tsv
+DATA_GROUP_COLUMN = author
+DATA_LANG = slo
+FINETUNE_MODEL_SOURCE = EMBEDDIA/sloberta
+FINETUNE_TRAIN_EPOCHS = 9
+EMBEDD_MODEL_SOURCE = out/models/
+EMBEDD_METRIC = JSD
+TARGET_WORDS = "diplomat,objava"
