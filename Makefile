@@ -7,6 +7,10 @@ MAKEFLAGS += --no-builtin-rules
 .RECIPEPREFIX = >
 
 
+ifneq (,$(wildcard ./.env))
+    include .env
+endif
+
 DATA ?= data/example_data.tsv
 DATA_GROUP_COLUMN ?= date
 DATA_LANG ?= slo
