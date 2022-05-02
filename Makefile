@@ -114,6 +114,10 @@ clean:
 .PHONY: clean
 
 
+all: interpretation
+.PHONY: all
+
+
 out/vocab.pickle: out/.preprocessed.sentinel
 out/train_lm.txt: out/.preprocessed.sentinel
 out/test_lm.txt: out/.preprocessed.sentinel
