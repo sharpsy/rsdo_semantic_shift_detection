@@ -60,11 +60,13 @@ FINETUNE_ARGS := --train_file /out/train_lm.txt \
                  --num_train_epochs $(FINETUNE_TRAIN_EPOCHS) \
                  --max_seq_length 512
 
-finetune: out/train_lm.txt out/test_lm.txt
+out/.finetune.sentinel: out/train_lm.txt out/test_lm.txt
 > echo "Using data from $(DATA)"
 > echo "Split is made over $(DATA_GROUP_COLUMN) column"
 > echo "Training model $(FINETUNE_MODEL_SOURCE) for $(FINETUNE_TRAIN_EPOCHS) epochs"
 > $(DOCKER) $(DOCKER_ARGS) $(DOCKER_DATA_ARGS) $(DOCKER_IMG) python /app/finetune_mlm.py $(FINETUNE_ARGS)
+> touch $@
+finetune: out/.finetune.sentinel
 .PHONY: finetune
 
 EMBEDD_ARGS := --vocab_path /out/vocab.pickle \
@@ -94,6 +96,7 @@ out/.semantic-shift.sentinel: out/embeddings.pickle
 semantic-shift: out/.semantic-shift.sentinel
 .PHONY: semantic-shift
 
+
 INTERPRETATION_ARGS := --target_words $(TARGET_WORDS) \
                        --lang $(DATA_LANG) \
                        --input_dir /out \
@@ -101,7 +104,8 @@ INTERPRETATION_ARGS := --target_words $(TARGET_WORDS) \
                        --cluster_size_threshold 10 \
                        --max_df 0.8 \
                        --num_keywords 10
-interpretation:
+
+interpretation: out/corpus_slices.pkl out/kmeans_5_labels.pkl out/sents.pkl out-id2sents.pkl
 > $(DOCKER) $(DOCKER_ARGS) $(DOCKER_IMG) python /app/interpretation.py $(INTERPRETATION_ARGS)
 .PHONY: interpretation
 
@@ -114,4 +118,8 @@ out/vocab.pickle: out/.preprocessed.sentinel
 out/train_lm.txt: out/.preprocessed.sentinel
 out/test_lm.txt: out/.preprocessed.sentinel
 out/vocab_list_of_words.csv: out/.preprocessed.sentinel
-/out/embeddings/embeddings.pickle: out/.embeddings.sentinel
+out/embeddings.pickle: out/.embeddings.sentinel
+out/corpus_slices.pkl: out/.semantic-shift.sentinel
+out/kmeans_5_labels.pkl: out/.semantic-shift.sentinel
+out/sents.pkl: out/.semantic-shift.sentinel
+out-id2sents.pkl: out/.semantic-shift.sentinel
