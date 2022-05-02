@@ -8,15 +8,6 @@ MAKEFLAGS += --no-builtin-rules
 
 include config.mk
 
-DATA ?= data/example_data.tsv
-DATA_GROUP_COLUMN ?= date
-DATA_LANG ?= slo
-FINETUNE_MODEL_SOURCE ?= EMBEDDIA/sloberta
-FINETUNE_TRAIN_EPOCHS ?= 10
-EMBEDD_MODEL_SOURCE ?= out/models/
-EMBEDD_METRIC ?= JSD
-TARGET_WORDS ?= "diplomat,objava"
-
 
 DOCKER := docker run
 DOCKER_IMG := semantic-shift
