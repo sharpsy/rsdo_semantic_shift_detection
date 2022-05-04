@@ -117,7 +117,7 @@ INTERPRETATION_ARGS := --target_words $(TARGET_WORDS) \
                        --max_df 0.8 \
                        --num_keywords 10
 
-interpretation: out/corpus_slices.pkl out/kmeans_5_labels.pkl out/sents.pkl out-id2sents.pkl
+interpretation: out/corpus_slices.pkl out/kmeans_5_labels.pkl out/sents.pkl out/id2sents.pkl
 > $(DOCKER) $(DOCKER_ARGS) $(DOCKER_IMG) python /app/interpretation.py $(INTERPRETATION_ARGS)
 .PHONY: interpretation
 
