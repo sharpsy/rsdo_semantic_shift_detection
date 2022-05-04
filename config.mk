@@ -31,3 +31,6 @@ EMBEDD_METRIC = JSD
 
 # Words used to analyse the semantic change
 TARGET_WORDS = "diplomat,objava"
+
+# Device used for CUDA enabled computation, cuda or cpu
+DEVICE = cuda

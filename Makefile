@@ -11,11 +11,14 @@ include config.mk
 
 DOCKER := docker run
 DOCKER_IMG := semantic-shift
-DOCKER_ARGS := --gpus all \
-               --rm \
+DOCKER_ARGS := --rm \
                --env PYTHONUNBUFFERED=1 \
                --env TRANSFORMERS_CACHE=/out/.cache \
                -v $$(realpath out):/out
+
+ifeq ($(DEVICE), "cuda")
+DOCKER_ARGS += --gpus all
+endif
 
 # Default - top level rule is what gets ran when you run just `make`
 all: interpretation
@@ -84,7 +87,7 @@ EMBEDD_ARGS := --vocab_path /out/vocab.pickle \
                --path_to_fine_tuned_model $(EMBEDD_MODEL_SOURCE) \
                --batch_size 16 \
                --max_sequence_length 256 \
-               --device cuda
+               --device $(DEVICE)
 
 out/.embeddings.sentinel: out/vocab.pickle
 > $(DOCKER) $(DOCKER_ARGS) $(DOCKER_IMG) python /app/get_embeddings_scalable.py $(EMBEDD_ARGS)
