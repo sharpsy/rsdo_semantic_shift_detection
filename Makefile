@@ -18,6 +18,15 @@ DOCKER_ARGS := --gpus all \
                -v $$(realpath out):/out
 
 # Default - top level rule is what gets ran when you run just `make`
+all: interpretation
+.PHONY: all
+
+
+clean:
+> rm -rf out
+.PHONY: clean
+
+
 out/.build.sentinel: $(shell find src -type f) Dockerfile
 > docker build . --tag=$(DOCKER_IMG)
 > mkdir -p out
@@ -108,14 +117,6 @@ INTERPRETATION_ARGS := --target_words $(TARGET_WORDS) \
 interpretation: out/corpus_slices.pkl out/kmeans_5_labels.pkl out/sents.pkl out-id2sents.pkl
 > $(DOCKER) $(DOCKER_ARGS) $(DOCKER_IMG) python /app/interpretation.py $(INTERPRETATION_ARGS)
 .PHONY: interpretation
-
-clean:
-> rm -rf out
-.PHONY: clean
-
-
-all: interpretation
-.PHONY: all
 
 
 out/vocab.pickle: out/.preprocessed.sentinel
