@@ -6,7 +6,7 @@ DATA = data/example_data.tsv
 
 # Data column from `DATA` file. This column will be used to group the
 # data before the analysis.
-DATA_GROUP_COLUMN = data
+DATA_GROUP_COLUMN = date
 
 # Language of the data. Preprocessing and language model choice will
 # be made based on this value. Supported values are `slo` for
