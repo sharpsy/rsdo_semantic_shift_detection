@@ -47,7 +47,7 @@ def addPosition(sent_data, length):
     return (new_mapping, sent, lemma)
 
 
-def mapSent2lemmaRoberta(sent, lemma, original_sent):
+def mapSent2lemmaRoberta(sent, lemma, sent_id):
     conjunctives = ["▁-"]
     lemma = lemma.split()
     mapping = []
@@ -96,10 +96,10 @@ def mapSent2lemmaRoberta(sent, lemma, original_sent):
         print(lemma)
         print("----------------------")
         return None
-    return (mapping, original_sent, lemma)
+    return (mapping, sent_id, lemma)
 
 
-def mapSent2lemma(sent, lemma, original_sent):
+def mapSent2lemma(sent, lemma, sent_id):
     conjunctives = ["-"]
     lemma = lemma.split()
     mapping = []
@@ -135,7 +135,7 @@ def mapSent2lemma(sent, lemma, original_sent):
         print(lemma)
         print("----------------------")
         return None
-    return (mapping, original_sent, lemma)
+    return (mapping, sent_id, lemma)
 
 
 def tokens_to_batches(ds, tokenizer, batch_size, max_length):
@@ -145,7 +145,6 @@ def tokens_to_batches(ds, tokenizer, batch_size, max_length):
 
     counter = 0
     sent_counter = 0
-    sent2count = {}
     count2sent = {}
     all_vocab = set()
     prev_vocab = 0
@@ -184,10 +183,12 @@ def tokens_to_batches(ds, tokenizer, batch_size, max_length):
                 lemmatized_sent = tokenizer.convert_tokens_to_string(tokenized_lemma)
                 if BOS_TOKEN == "<s>":
                     mapping = mapSent2lemmaRoberta(
-                        tokenized_sent, lemmatized_sent, sent
+                        tokenized_sent, lemmatized_sent, sent_counter
                     )
                 else:
-                    mapping = mapSent2lemma(tokenized_sent, lemmatized_sent, sent)
+                    mapping = mapSent2lemma(
+                        tokenized_sent, lemmatized_sent, sent_counter
+                    )
                 if mapping is None:
                     error_counter += 1
                     continue
@@ -196,7 +197,6 @@ def tokens_to_batches(ds, tokenizer, batch_size, max_length):
                     all_vocab.add(l)
 
                 count2sent[sent_counter] = (sent, lemmatized_sent, meta)
-                sent2count[sent] = sent_counter
 
                 if len(tokenized_text) + len(tokenized_sent) > max_length:
                     indexed_tokens = tokenizer.convert_tokens_to_ids(tokenized_text)
@@ -232,7 +232,7 @@ def tokens_to_batches(ds, tokenizer, batch_size, max_length):
     print("Final Vocab size: ", len(all_vocab))
     print("len batches: ", len(batches))
 
-    return batches, count2sent, sent2count
+    return batches, count2sent
 
 
 def get_token_embeddings(batches, model, batch_size, device):
@@ -332,7 +332,7 @@ def get_slice_embeddings(
         chunk = str(chunk)
         print("WORKING ON SLICE: ", chunk)
         ds = zip(vocab.docs[chunk], vocab.lemmatized_docs[chunk], vocab.meta[chunk])
-        all_batches, count2sent, sent2count = tokens_to_batches(
+        all_batches, count2sent = tokens_to_batches(
             ds, tokenizer, batch_size, max_length
         )
 
@@ -352,7 +352,7 @@ def get_slice_embeddings(
             # go through text token by token
             for emb_idx, ctx_embedding in enumerate(encoder_token_embeddings):
                 seq_mappings = mappings[emb_idx]
-                for mapping, sentence, lemma_sent in seq_mappings:
+                for mapping, sent_id, lemma_sent in seq_mappings:
                     sent_tokens = []
                     for token_i, ixs in mapping:
                         if token_i not in targets:
@@ -376,7 +376,7 @@ def get_slice_embeddings(
 
                     for sent_token, sent_idx in sent_tokens:
                         vocab_vectors[sent_token][chunk + "_text"][sent_idx].append(
-                            sent2count[sentence]
+                            sent_id
                         )
 
             del encoder_token_embeddings
