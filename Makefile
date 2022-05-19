@@ -16,7 +16,7 @@ DOCKER_ARGS := --rm \
                --env TRANSFORMERS_CACHE=/out/.cache \
                -v $$(realpath out):/out
 
-ifeq ($(DEVICE), "cuda")
+ifeq ($(DEVICE), cuda)
 DOCKER_ARGS += --gpus all
 endif
 
