@@ -176,7 +176,7 @@ def tokens_to_batches(ds, tokenizer, batch_size, max_length):
             sent_counter += 1
             lsent = sent.strip()
             if len(lsent.split()) > 2:
-                marked_sent = BOS_TOKEN + " " + lsent + " " + EOS_TOKEN
+                marked_sent = f"{BOS_TOKEN} {lsent} {EOS_TOKEN}"
                 tokenized_sent = tokenizer.tokenize(marked_sent)
                 if len(tokenized_sent) > max_length:
                     continue
