@@ -128,3 +128,4 @@ out/corpus_slices.pkl: out/.semantic-shift.sentinel
 out/kmeans_5_labels.pkl: out/.semantic-shift.sentinel
 out/sents.pkl: out/.semantic-shift.sentinel
 out/id2sents.pkl: out/.semantic-shift.sentinel
+out/word_list_results.csv: out/.semantic-shift.sentinel
